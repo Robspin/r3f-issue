@@ -69,7 +69,7 @@ const M1 = forwardRef(({ texture, children, ...props }, ref) => {
           <mesh geometry={nodes.back_1.geometry} material={materials.blackmatte} />
           <mesh receiveShadow castShadow geometry={nodes.back_2.geometry} material={materials.aluminium} />
           <mesh geometry={nodes.matte.geometry}>
-            <meshLambertMaterial map={texture} toneMapped={false} colorSpace={THREE.SRGBColorSpace} />
+            <meshLambertMaterial map={texture} toneMapped={false} />
           </mesh>
         </group>
         {children}
