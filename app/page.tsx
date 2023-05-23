@@ -1,82 +1,91 @@
 'use client'
+import * as THREE from 'three'
+import { forwardRef, useEffect, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import {useGLTF, ScrollControls, useScroll, useTexture, Preload} from '@react-three/drei'
+import useRefs from 'react-use-refs'
+
+const rsqw = (t, delta = 0.1, a = 1, f = 1 / (2 * Math.PI)) => (a / Math.atan(1 / delta)) * Math.atan(Math.sin(2 * Math.PI * t * f) / delta)
 
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
+import {r3f} from "@/helpers/global"
 
-const Logo = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Logo), { ssr: false })
-const Dog = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Dog), { ssr: false })
-const Duck = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Duck), { ssr: false })
-const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
-  ssr: false,
-  loading: () => (
-    <div className='flex h-96 w-full flex-col items-center justify-center'>
-      <svg className='-ml-1 mr-3 h-5 w-5 animate-spin text-black' fill='none' viewBox='0 0 24 24'>
-        <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' />
-        <path
-          className='opacity-75'
-          fill='currentColor'
-          d='M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-        />
-      </svg>
-    </div>
-  ),
-})
-const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
-
-export default function Page() {
+export default function App() {
   return (
-    <>
-      <div className='mx-auto flex w-full flex-col flex-wrap items-center md:flex-row  lg:w-4/5'>
-        {/* jumbo */}
-        <div className='flex w-full flex-col items-start justify-center p-12 text-center md:w-2/5 md:text-left'>
-          <p className='w-full uppercase'>Next + React Three Fiber</p>
-          <h1 className='my-4 text-5xl font-bold leading-tight'>Next 3D Starter</h1>
-          <p className='mb-8 text-2xl leading-normal'>A minimalist starter for React, React-three-fiber and Threejs.</p>
-        </div>
-
-        <div className='w-full text-center md:w-3/5'>
-          <View className='flex h-96 w-full flex-col items-center justify-center'>
-            <Suspense fallback={null}>
-              <Logo route='/blob' scale={0.6} position={[0, 0, 0]} />
-              <Common />
-            </Suspense>
-          </View>
-        </div>
-      </div>
-
-      <div className='mx-auto flex w-full flex-col flex-wrap items-center p-12 md:flex-row  lg:w-4/5'>
-        {/* first row */}
-        <div className='relative h-48 w-full py-6 sm:w-1/2 md:my-12 md:mb-40'>
-          <h2 className='mb-3 text-3xl font-bold leading-none text-gray-800'>Events are propagated</h2>
-          <p className='mb-8 text-gray-600'>Drag, scroll, pinch, and rotate the canvas to explore the 3D scene.</p>
-        </div>
-        <div className='relative my-12 h-48 w-full py-6 sm:w-1/2 md:mb-40'>
-          <View orbit className='relative h-full  sm:h-48 sm:w-full'>
-            <Suspense fallback={null}>
-              <Dog scale={2} position={[0, -1.6, 0]} rotation={[0.0, -0.3, 0]} />
-              <Common color={'lightpink'} />
-            </Suspense>
-          </View>
-        </div>
-        {/* second row */}
-        <div className='relative my-12 h-48 w-full py-6 sm:w-1/2 md:mb-40'>
-          <View orbit className='relative h-full animate-bounce sm:h-48 sm:w-full'>
-            <Suspense fallback={null}>
-              <Duck route='/blob' scale={2} position={[0, -1.6, 0]} />
-              <Common color={'lightblue'} />
-            </Suspense>
-          </View>
-        </div>
-        <div className='w-full p-6 sm:w-1/2'>
-          <h2 className='mb-3 text-3xl font-bold leading-none text-gray-800'>Dom and 3D are synchronized</h2>
-          <p className='mb-8 text-gray-600'>
-            3D Divs are renderer through the View component. It uses gl.scissor to cut the viewport into segments. You
-            tie a view to a tracking div which then controls the position and bounds of the viewport. This allows you to
-            have multiple views with a single, performant canvas. These views will follow their tracking elements,
-            scroll along, resize, etc.
-          </p>
-        </div>
-      </div>
-    </>
+      <Canvas shadows dpr={[1, 2]} camera={{ position: [0, -3.2, 40], fov: 12 }}>
+        <r3f.Out />
+        <ScrollControls pages={5}>
+          <Composition />
+        </ScrollControls>
+        <Preload all />
+      </Canvas>
   )
 }
+
+function Composition({ ...props }) {
+  const scroll = useScroll()
+  const { width, height } = useThree((state) => state.viewport)
+  const [group, mbp16, mbp14, keyLight, stripLight, fillLight, left, right] = useRefs()
+  const [vscode1, vscode2] = useTexture(['/vscode1.png', '/vscode2.png'])
+  const [currentTexture, setCurrentTexture] = useState(vscode1)
+
+
+  useFrame((state, delta) => {
+    const r1 = scroll.range(0 / 4, 1 / 4)
+    const r2 = scroll.range(1 / 4, 1 / 4)
+    const r3 = scroll.visible(4 / 5, 1 / 5)
+
+    mbp16.current.rotation.x = Math.PI - (Math.PI / 2) * 0.96 + r2 * 0.33
+    // mbp16.current.rotation.x = Math.PI - (Math.PI / 2) * rsqw(r1) + r2 * 0.33
+    // group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, (-Math.PI / 1.45) * r2, 4, delta)
+    group.current.position.x = THREE.MathUtils.damp(group.current.position.x, (-width / 7) * r2, 4, delta)
+    group.current.scale.x = group.current.scale.y = group.current.scale.z = THREE.MathUtils.damp(group.current.scale.z, 1 + 0.24 * (1 - rsqw(r1)), 4, delta)
+    keyLight.current.position.set(0.25 + -15 * (1 - r1), 4 + 11 * (1 - r1), 3 + 2 * (1 - r1))
+  })
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTexture((prev) => (prev === vscode1 ? vscode2 : vscode1))
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+      <>
+        <spotLight position={[0, -width * 0.7, 0]} intensity={0.5} />
+        <directionalLight ref={keyLight} castShadow intensity={6}>
+          <orthographicCamera attachObject={['shadow', 'camera']} args={[-10, 10, 10, -10, 0.5, 30]} />
+        </directionalLight>
+        <group ref={group} position={[0, -height / 2.65, 0]} {...props}>
+          <spotLight ref={stripLight} position={[width * 2.5, 0, width]} angle={0.19} penumbra={1} intensity={0.25} />
+          <spotLight ref={fillLight} position={[0, -width / 2.4, -width * 2.2]} angle={0.2} penumbra={1} intensity={2} distance={width * 3} />
+          <M1 ref={mbp16} texture={currentTexture} scale={width / 67} />
+        </group>
+      </>
+  )
+}
+
+/*
+Auto-generated by: https://github.com/pmndrs/gltfjsx
+author: akshatmittal (https://sketchfab.com/akshatmittal)
+license: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+source: https://sketchfab.com/3d-models/2021-macbook-pro-14-m1-pro-m1-max-f6b0b940fb6a4286b18a674ef32af2d3
+title: 2021 Macbook Pro 14" (M1 Pro / M1 Max)
+*/
+const M1 = forwardRef(({ texture, children, ...props }, ref) => {
+  const { nodes, materials } = useGLTF('/mbp-v1-pipe.glb')
+  return (
+      <group {...props} dispose={null}>
+        <group ref={ref} position={[0, -0.43, -11.35]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh geometry={nodes.back_1.geometry} material={materials.blackmatte} />
+          <mesh receiveShadow castShadow geometry={nodes.back_2.geometry} material={materials.aluminium} />
+          <mesh geometry={nodes.matte.geometry}>
+            <meshLambertMaterial map={texture} toneMapped={false} colorSpace={THREE.SRGBColorSpace} />
+          </mesh>
+        </group>
+        {children}
+        <mesh geometry={nodes.body_1.geometry} material={materials.aluminium} material-color="#aaaaaf" material-envMapIntensity={0.2} />
+        <mesh geometry={nodes.body_2.geometry} material={materials.blackmatte} />
+      </group>
+  )
+})
